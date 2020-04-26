@@ -8,6 +8,14 @@ reload(util)
 class Gcode():
 
 
+    def gcode_start(self):
+        return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( = )\n"
+
+
+    def gcode_end(self):
+        return "( == gcode end == )\nS0\nM5\nG1 Z50.0\nM30\n%\n( == gcode end == )\n"
+
+
     def define_print_info(self):
         now = ut.get_current_time()
         return "( = Polyline to Gcode by Grasshopper = )\n( = For EB 3D Printer = )\n( = Export : {} = )\n( = )\n".format(now)
@@ -22,7 +30,8 @@ class Gcode():
 
 
     def define_travel(self, current_z):
-        Z_BUFFER = float(20)
+        ### buffer (mm)
+        Z_BUFFER = float(25)
         new_z = str(float(current_z) + Z_BUFFER)
         return ("( == Travel == )\nG1 Z{}\n( = )\n".format(new_z))
 
@@ -77,8 +86,8 @@ class Gcode():
         export.append(self.define_print_info())
 
 
-        ### header
-        # hello
+        ### gcode start
+        export.append(self.gcode_start())
 
 
         ### gcode
@@ -90,12 +99,11 @@ class Gcode():
             export.append(self.points_to_gcode(pts, m3_s, m4_s, f))
         
 
-        ### footter
-        # hello
+        ### gcode end
+        export.append(self.gcode_end())
 
 
         export_join = "".join(export)
 
+
         return export_join
-
-
