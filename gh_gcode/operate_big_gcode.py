@@ -22,7 +22,7 @@ class Gcode():
 
 
     def define_extrude_filament(self, parge_value):
-        return "( == Extrude Filament == )\nM3 S{} P1\n".format(parge_value)
+        return "( ==== Start Printing ==== )\n( == Extrude Filament == )\nM3 S{} P1\n".format(parge_value)
 
 
     def define_stop_filament(self, reverse_value):
@@ -40,14 +40,7 @@ class Gcode():
 
         txt = []
 
-        ### Printing Start
-        ### M3
-        txt.append(self.define_extrude_filament(m3_s))
-
-
         ### Printing
-        txt.append("( ==== Start Printing ==== )\n")
-
         for i in xrange(len(points)):
             _px, _py, _pz = points[i]
             px = str("{:f}".format(_px))
@@ -56,12 +49,17 @@ class Gcode():
 
             txt.append("G1 X{} Y{} Z{} F{}\n".format(px, py, pz, f))
 
+
+            ### Extrude Filament
+            if i == 0:
+                ### M3
+                txt.append(self.define_extrude_filament(m3_s))
+
+
             ### get current z
             if i == (len(points) - 1):
                 _cx, _cy, _cz = points[i]
                 cz = "{:f}".format(_cz)
-
-        txt.append("( ==== Stop Printing ==== )\n")
 
 
         ### Printting Stop
