@@ -9,16 +9,20 @@ class Gcode():
 
 
     def gcode_start(self):
-        return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( = )\n"
+        return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
 
     def gcode_end(self):
         return "( == gcode end == )\nS0\nM5\nG1 Z50.0\nM30\n%\n( == gcode end == )\n"
 
 
-    def define_print_info(self):
+    def define_print_msg(self):
+        return "( Polyline to Gcode by Grasshopper )\n( For EB 3D Printer )\n( --- )\n"
+
+
+    def define_print_parameter(self, f, m3, m4, z_offset):
         now = ut.get_current_time()
-        return "( = Polyline to Gcode by Grasshopper = )\n( = For EB 3D Printer = )\n( = Export : {} = )\n( = )\n".format(now)
+        return "( Export : {} )\n( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( Z Offset Value : {} )\n( --- )\n".format(now, f, m3, m4, z_offset)
 
 
     def define_extrude_filament(self, parge_value):
@@ -76,12 +80,13 @@ class Gcode():
         return txt_join
 
 
-    def points_list_to_gcode(self, points_list, m3_s, m4_s, f):
+    def points_list_to_gcode(self, points_list, m3_s, m4_s, f, z_off):
         
         export = []
 
-        ### msg
-        export.append(self.define_print_info())
+        ### print msg, print parameter
+        export.append(self.define_print_msg())
+        export.append(self.define_print_parameter(f, m3_s, m4_s, z_off))
 
 
         ### gcode start
