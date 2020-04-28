@@ -20,27 +20,27 @@ class Gcode():
         return "( Polyline to Gcode by Grasshopper )\n( For EB 3D Printer )\n( --- )\n"
 
 
-    def define_print_parameter(self, f, m3, m4, z_offset):
+    def define_print_parameter(self, f, m3, m4, z_offset, stop_time, z_buffer):
         now = ut.get_current_time()
-        return "( Export : {} )\n( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( Z Offset Value : {} )\n( --- )\n".format(now, f, m3, m4, z_offset)
+        return "( Export : {} )\n( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( M4 Stop Time : {} )\n( Z Offset Value : {} )\n( --- )\n".format(now, f, m3, m4, stop_time, z_offset)
 
 
     def define_extrude_filament(self, parge_value):
         return "( ==== Start Printing ==== )\n( == Extrude Filament == )\nM3 S{} P1\n".format(parge_value)
 
 
-    def define_stop_filament(self, reverse_value):
-        return "( == Stop Filament == )\nM4 S{} P1\n".format(reverse_value)
+    def define_stop_filament(self, reverse_value, stop_time):
+        return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nS0\n".format(reverse_value, stop_time)
 
 
-    def define_travel(self, current_z):
+    def define_travel(self, current_z, z_buffer):
         ### buffer (mm)
-        Z_BUFFER = float(25)
+        Z_BUFFER = float(z_buffer)
         new_z = str(float(current_z) + Z_BUFFER)
-        return ("( == Travel == )\nG1 Z{}\n( = )\n".format(new_z))
+        return ("( == Travel == )\nG1 Z{}\n( - )\n".format(new_z))
 
 
-    def points_to_gcode(self,points, m3_s, m4_s, f):
+    def points_to_gcode(self,points, m3_s, m4_s, f, stop_time, z_buffer):
 
         txt = []
 
@@ -68,11 +68,11 @@ class Gcode():
 
         ### Printting Stop
         ### M4
-        txt.append(self.define_stop_filament(m4_s))
+        txt.append(self.define_stop_filament(m4_s, stop_time))
 
 
         ### travel
-        txt.append(self.define_travel(cz))
+        txt.append(self.define_travel(cz, z_buffer))
 
 
         txt_join = "".join(txt)
@@ -80,13 +80,13 @@ class Gcode():
         return txt_join
 
 
-    def points_list_to_gcode(self, points_list, m3_s, m4_s, f, z_off):
+    def points_list_to_gcode(self, points_list, m3_s, m4_s, f, z_offset, stop_time, z_buffer):
         
         export = []
 
         ### print msg, print parameter
         export.append(self.define_print_msg())
-        export.append(self.define_print_parameter(f, m3_s, m4_s, z_off))
+        export.append(self.define_print_parameter(f, m3_s, m4_s, z_offset, stop_time, z_buffer))
 
 
         ### gcode start
@@ -99,7 +99,7 @@ class Gcode():
             pts = points_list[i]
 
             export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-            export.append(self.points_to_gcode(pts, m3_s, m4_s, f))
+            export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
         
 
         ### gcode end
