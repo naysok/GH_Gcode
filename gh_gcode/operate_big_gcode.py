@@ -30,7 +30,7 @@ class Gcode():
 
 
     def define_stop_filament(self, reverse_value, stop_time):
-        return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nS0\n".format(reverse_value, stop_time)
+        return "( == Stop Filament == )\nM4 S{} P1\nG4 P{}\nS0\n".format(reverse_value, stop_time)
 
 
     def define_travel(self, current_z, z_buffer):
