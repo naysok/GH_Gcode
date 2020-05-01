@@ -36,3 +36,8 @@ class Util():
             f.write(txt)
 
         print("Export GCode : {}".format(file_path))
+
+
+    def zip_matrix(self, mat):
+        ### https://note.nkmk.me/python-list-transpose/
+        return [list(x) for x in zip(*mat)]
