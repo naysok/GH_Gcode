@@ -142,7 +142,10 @@ gc = Curve()
 class Gcode():
 
     def gcode_start(self):
-        return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( --- )\n"
+        return "( == gcode start == )\n%\nG91\nG28 Z0.000\nG28 X0.000 Y0.000\nG49\nG80\nG90\nG5\n( == gcode start == )\n( --- )\n"
+
+    def head_start(self):
+        return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
 
     def gcode_end(self):
         return "( == gcode end == )\nS0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
@@ -210,6 +213,9 @@ class Gcode():
 
         ### gcode start
         export.append(self.gcode_start())
+
+        ### head start
+        export.append(self.head_start())
 
         ### gcode
         for i in xrange(len(points_list)):
