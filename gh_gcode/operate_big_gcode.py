@@ -17,7 +17,7 @@ class BigGcode():
 
 
     def gcode_end(self):
-        return "( == gcode end == )\nS0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
+        return "( == gcode end == )\nM3 S0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
 
 
     def define_print_msg(self):
