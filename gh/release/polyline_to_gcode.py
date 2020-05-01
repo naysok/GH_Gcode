@@ -27,7 +27,7 @@ class Util():
     def export_gcode(self, dir_path, txt):
 
         now = self.get_current_time()
-        file_path = dir_path + now + ".txt"
+        file_path = dir_path + now + ".gcode"
 
         ### Export
         with open(file_path, 'w') as f:
@@ -37,9 +37,10 @@ class Util():
 
 ut = Util()
 
+
 class Transform():
 
-    
+
     def pt_pt_add(self, pt0, pt1):
         pt = [
             float(pt1[0]) + float(pt0[0]),
@@ -81,6 +82,7 @@ class Transform():
         return p
 
 tr = Transform()
+
 
 class Curve():
 
@@ -143,7 +145,7 @@ class Gcode():
         return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
     def gcode_end(self):
-        return "( == gcode end == )\nS0\nM5\nG1 Z50.0\nM30\n%\n( == gcode end == )\n"
+        return "( == gcode end == )\nS0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
 
     def define_print_msg(self):
         return "( Polyline to Gcode by Grasshopper )\n( For EB 3D Printer )\n( --- )\n"
@@ -156,7 +158,7 @@ class Gcode():
         return "( ==== Start Printing ==== )\n( == Extrude Filament == )\nM3 S{} P1\n".format(parge_value)
 
     def define_stop_filament(self, reverse_value, stop_time):
-        return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nS0\n".format(reverse_value, stop_time)
+        return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nM3 S0\n".format(reverse_value, stop_time)
 
     def define_travel(self, current_z, z_buffer):
         ### buffer (mm)
