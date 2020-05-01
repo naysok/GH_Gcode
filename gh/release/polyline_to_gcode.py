@@ -1,6 +1,7 @@
 import datetime
 import math
 import rhinoscriptsyntax as rs
+import Rhino.Geometry as rg
 
 
 class Util():
@@ -36,7 +37,50 @@ class Util():
 
 ut = Util()
 
+class Transform():
 
+    
+    def pt_pt_add(self, pt0, pt1):
+        pt = [
+            float(pt1[0]) + float(pt0[0]),
+            float(pt1[1]) + float(pt0[1]),
+            float(pt1[2]) + float(pt0[2])]
+        return pt
+
+
+    def pt_pt_subtract(self, pt0, pt1):
+        pt = [
+            float(pt0[0]) - float(pt1[0]),
+            float(pt0[1]) - float(pt1[1]),
+            float(pt0[2]) - float(pt1[2])]
+        return pt
+
+
+    def vector_multiplicate(self, vector, value):
+        vec = [
+            float(vector[0]) * value,
+            float(vector[1]) * value,
+            float(vector[2]) * value]
+        return vec
+
+
+    def vector_unitize(self, vector):
+        length = math.sqrt(
+            math.pow(float(vector[0]), 2) + 
+            math.pow(float(vector[1]), 2) + 
+            math.pow(float(vector[2]), 2))
+        new_vector = self.vector_multiplicate(vector, (1.0 / length))
+        return new_vector
+
+
+    def move_pt_vec(self, pt, vec):
+        p = [
+            float(pt[0]) + float(vec[0]),
+            float(pt[1]) + float(vec[1]),
+            float(pt[2]) + float(vec[2])]
+        return p
+
+tr = Transform()
 
 class Curve():
 
@@ -48,9 +92,9 @@ class Curve():
         start_pt = rs.CurveStartPoint(polyline)
         points.append(start_pt)
 
-
-        ### Segment Points / Style : 4 = G1
-        segments = rs.CurveDiscontinuity(polyline, 4)
+        ### Segment Points
+        ### Style : 3 = C2 - Continuous first and second derivative
+        segments = rs.CurveDiscontinuity(polyline, 3)
         for j in range(len(segments)):
             points.append(segments[j])
 
@@ -70,6 +114,25 @@ class Curve():
             points_array.append(points)
 
         return points_array
+    
+    def offset_z(self, points, z_offset_value):
+
+        move_vec = [0, 0, z_offset_value]
+
+        points_off = []
+
+        for i in xrange(len(points)):
+            sub = []
+            tmp = points[i]
+            for j in xrange(len(tmp)):
+                pt = tmp[j]
+                ### offset
+                X, Y, Z = tr.move_pt_vec(pt, move_vec)
+                pt_off = rg.Point3d(X, Y, Z)
+                sub.append(pt_off)
+            points_off.append(sub)
+        
+        return points_off
 
 gc = Curve()
 
@@ -77,29 +140,31 @@ gc = Curve()
 class Gcode():
 
     def gcode_start(self):
-        return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( = )\n"
-
+        return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
     def gcode_end(self):
         return "( == gcode end == )\nS0\nM5\nG1 Z50.0\nM30\n%\n( == gcode end == )\n"
 
-    def define_print_info(self):
+    def define_print_msg(self):
+        return "( Polyline to Gcode by Grasshopper )\n( For EB 3D Printer )\n( --- )\n"
+
+    def define_print_parameter(self, f, m3, m4, z_offset, stop_time, z_buffer):
         now = ut.get_current_time()
-        return "( = Polyline to Gcode by Grasshopper = )\n( = For EB 3D Printer = )\n( = Export : {} = )\n( = )\n".format(now)
+        return "( Export : {} )\n( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( M4 Stop Time : {} )\n( Z Offset Value : {} )\n( --- )\n".format(now, f, m3, m4, stop_time, z_offset)
 
     def define_extrude_filament(self, parge_value):
         return "( ==== Start Printing ==== )\n( == Extrude Filament == )\nM3 S{} P1\n".format(parge_value)
 
-    def define_stop_filament(self, reverse_value):
-        return "( == Stop Filament == )\nM4 S{} P1\n".format(reverse_value)
+    def define_stop_filament(self, reverse_value, stop_time):
+        return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nS0\n".format(reverse_value, stop_time)
 
-    def define_travel(self, current_z):
+    def define_travel(self, current_z, z_buffer):
         ### buffer (mm)
-        Z_BUFFER = float(25)
+        Z_BUFFER = float(z_buffer)
         new_z = str(float(current_z) + Z_BUFFER)
-        return ("( == Travel == )\nG1 Z{}\n( = )\n".format(new_z))
+        return ("( == Travel == )\nG1 Z{}\n( - )\n".format(new_z))
 
-    def points_to_gcode(self,points, m3_s, m4_s, f):
+    def points_to_gcode(self,points, m3_s, m4_s, f, stop_time, z_buffer):
 
         txt = []
 
@@ -124,21 +189,22 @@ class Gcode():
 
         ### Printting Stop
         ### M4
-        txt.append(self.define_stop_filament(m4_s))
+        txt.append(self.define_stop_filament(m4_s, stop_time))
 
         ### travel
-        txt.append(self.define_travel(cz))
+        txt.append(self.define_travel(cz, z_buffer))
 
         txt_join = "".join(txt)
 
         return txt_join
 
-    def points_list_to_gcode(self, points_list, m3_s, m4_s, f):
+    def points_list_to_gcode(self, points_list, m3_s, m4_s, f, z_offset, stop_time, z_buffer):
         
         export = []
 
-        ### msg
-        export.append(self.define_print_info())
+        ### print msg, print parameter
+        export.append(self.define_print_msg())
+        export.append(self.define_print_parameter(f, m3_s, m4_s, z_offset, stop_time, z_buffer))
 
         ### gcode start
         export.append(self.gcode_start())
@@ -149,7 +215,7 @@ class Gcode():
             pts = points_list[i]
 
             export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-            export.append(self.points_to_gcode(pts, m3_s, m4_s, f))
+            export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
         
         ### gcode end
         export.append(self.gcode_end())
@@ -163,8 +229,7 @@ gg = Gcode()
 
 
 
-####################
-
+##########
 
 
 
@@ -172,11 +237,16 @@ gg = Gcode()
 pts = gc.polylines_to_points(POLYLINES)
 POINTS = ut.flatten_runtime_list(pts)
 
+
+### Z OFFSET
+pts_off = gc.offset_z(pts, Z_OFFSET_VALUE)
+DEV = ut.flatten_runtime_list(pts_off)
+
+
 ### Points to Gcode
-gcode = gg.points_list_to_gcode(pts, M3_S_VALUE, M4_S_VALUE, F_VALUE)
+gcode = gg.points_list_to_gcode(pts_off, M3_S_VALUE, M4_S_VALUE, F_VALUE, Z_OFFSET_VALUE, M4_STOP_TIME, Z_BUFFER)
 
 
 
 if EXPORT == True:
     ut.export_gcode(EXPORT_DIR, gcode)
-
