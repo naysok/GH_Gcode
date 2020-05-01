@@ -1,16 +1,20 @@
 import datetime
 import math
+
 import rhinoscriptsyntax as rs
 import Rhino.Geometry as rg
 
 
 class Util():
 
+
     def get_current_time(self):
         return str(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
+
     def remap_number(self, src, old_min, old_max, new_min, new_max):
         return ((src - old_min) / (old_max - old_min) * (new_max - new_min) + new_min)
+
 
     def flatten_runtime_list(self, list):
         all = []
@@ -23,6 +27,7 @@ class Util():
                 all.append(sub[j])
 
         return all
+
 
     def export_gcode(self, dir_path, txt):
 
@@ -86,6 +91,7 @@ tr = Transform()
 
 class Curve():
 
+
     def polyline_to_points(self, polyline):
 
         points = []
@@ -105,7 +111,8 @@ class Curve():
         points.append(end_pt)
         
         return points
-    
+
+
     def polylines_to_points(self, polylines):
 
         points_array = []
@@ -116,7 +123,8 @@ class Curve():
             points_array.append(points)
 
         return points_array
-    
+
+
     def offset_z(self, points, z_offset_value):
 
         move_vec = [0, 0, z_offset_value]
@@ -141,33 +149,42 @@ gc = Curve()
 
 class Gcode():
 
+
     def gcode_start(self):
         return "( == gcode start == )\n%\nG91\nG28 Z0.000\nG28 X0.000 Y0.000\nG49\nG80\nG90\nG5\n( == gcode start == )\n( --- )\n"
+
 
     def head_start(self):
         return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
 
+
     def gcode_end(self):
         return "( == gcode end == )\nS0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
 
+
     def define_print_msg(self):
         return "( Polyline to Gcode by Grasshopper )\n( For EB 3D Printer )\n( --- )\n"
+
 
     def define_print_parameter(self, f, m3, m4, z_offset, stop_time, z_buffer):
         now = ut.get_current_time()
         return "( Export : {} )\n( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( M4 Stop Time : {} )\n( Z Offset Value : {} )\n( --- )\n".format(now, f, m3, m4, stop_time, z_offset)
 
+
     def define_extrude_filament(self, parge_value):
         return "( ==== Start Printing ==== )\n( == Extrude Filament == )\nM3 S{} P1\n".format(parge_value)
 
+
     def define_stop_filament(self, reverse_value, stop_time):
         return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nM3 S0\n".format(reverse_value, stop_time)
+
 
     def define_travel(self, current_z, z_buffer):
         ### buffer (mm)
         Z_BUFFER = float(z_buffer)
         new_z = str(float(current_z) + Z_BUFFER)
         return ("( == Travel == )\nG1 Z{}\n( - )\n".format(new_z))
+
 
     def points_to_gcode(self,points, m3_s, m4_s, f, stop_time, z_buffer):
 
@@ -202,6 +219,7 @@ class Gcode():
         txt_join = "".join(txt)
 
         return txt_join
+
 
     def points_list_to_gcode(self, points_list, m3_s, m4_s, f, z_offset, stop_time, z_buffer):
         
