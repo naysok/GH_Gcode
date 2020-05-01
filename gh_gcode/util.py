@@ -41,3 +41,29 @@ class Util():
     def zip_matrix(self, mat):
         ### https://note.nkmk.me/python-list-transpose/
         return [list(x) for x in zip(*mat)]
+
+
+    def padding_previous_value(self, list_):
+        
+        list_pad = []
+
+        for i in xrange(len(list_)):
+            
+            item_ = list_[i]
+
+            ### First 
+            if i == 0:
+                if (item_ == None):
+                    list_pad.append(0)
+                else:
+                    list_pad.append(item_)
+            
+            ### Not Frist
+            else:
+                if (item_ == None):
+                    tmp = list_pad[i-1]
+                    list_pad.append(tmp)
+                else:
+                    list_pad.append(item_)
+        
+        return list_pad
