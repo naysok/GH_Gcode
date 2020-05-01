@@ -18,7 +18,6 @@ class Curve():
         start_pt = rs.CurveStartPoint(polyline)
         points.append(start_pt)
 
-
         ### Segment Points
         ### Style : 3 = C2 - Continuous first and second derivative
         segments = rs.CurveDiscontinuity(polyline, 3)
@@ -30,7 +29,6 @@ class Curve():
         points.append(end_pt)
         
         return points
-    
 
 
     def polylines_to_points(self, polylines):
@@ -43,7 +41,7 @@ class Curve():
             points_array.append(points)
 
         return points_array
-    
+
 
     def offset_z(self, points, z_offset_value):
 
