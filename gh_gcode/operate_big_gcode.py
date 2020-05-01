@@ -5,15 +5,19 @@ ut = util.Util()
 reload(util)
 
 
-class Gcode():
+class BigGcode():
 
 
     def gcode_start(self):
-        return "( == gcode start == )\n%\nG90\nG54\n( == gcode start == )\n( --- )\n"
+        return "( == gcode start == )\n%\nG91\nG28 Z0.000\nG28 X0.000 Y0.000\nG49\nG80\nG90\nG5\n( == gcode start == )\n( --- )\n"
+
+
+    def head_start(self):
+        return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
 
 
     def gcode_end(self):
-        return "( == gcode end == )\nS0\nM5\nG1 Z50.0\nM30\n%\n( == gcode end == )\n"
+        return "( == gcode end == )\nS0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
 
 
     def define_print_msg(self):
@@ -30,7 +34,7 @@ class Gcode():
 
 
     def define_stop_filament(self, reverse_value, stop_time):
-        return "( == Stop Filament == )\nM4 S{} P1\nG4 P{}\nS0\n".format(reverse_value, stop_time)
+        return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nM3 S0\n".format(reverse_value, stop_time)
 
 
     def define_travel(self, current_z, z_buffer):
@@ -53,27 +57,22 @@ class Gcode():
 
             txt.append("G1 X{} Y{} Z{} F{}\n".format(px, py, pz, f))
 
-
             ### Extrude Filament
             if i == 0:
                 ### M3
                 txt.append(self.define_extrude_filament(m3_s))
-
 
             ### get current z
             if i == (len(points) - 1):
                 _cx, _cy, _cz = points[i]
                 cz = "{:f}".format(_cz)
 
-
         ### Printting Stop
         ### M4
         txt.append(self.define_stop_filament(m4_s, stop_time))
 
-
-        ### travel
+        ### Travel
         txt.append(self.define_travel(cz, z_buffer))
-
 
         txt_join = "".join(txt)
 
@@ -88,10 +87,11 @@ class Gcode():
         export.append(self.define_print_msg())
         export.append(self.define_print_parameter(f, m3_s, m4_s, z_offset, stop_time, z_buffer))
 
-
         ### gcode start
         export.append(self.gcode_start())
 
+        ### head start
+        export.append(self.head_start())
 
         ### gcode
         for i in xrange(len(points_list)):
@@ -101,12 +101,9 @@ class Gcode():
             export.append("( ========= Layer : {} ========= )\n".format(i + 1))
             export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
         
-
         ### gcode end
         export.append(self.gcode_end())
 
-
         export_join = "".join(export)
-
 
         return export_join
