@@ -147,7 +147,7 @@ class Curve():
 gc = Curve()
 
 
-class Gcode():
+class BigGcode():
 
 
     def gcode_start(self):
@@ -250,7 +250,7 @@ class Gcode():
 
         return export_join
 
-gg = Gcode()
+gg = BigGcode()
 
 
 
