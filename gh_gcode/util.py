@@ -24,12 +24,12 @@ class Util():
                 all.append(sub[j])
 
         return all
-    
+
 
     def export_gcode(self, dir_path, txt):
 
         now = self.get_current_time()
-        file_path = dir_path + now + ".txt"
+        file_path = dir_path + now + ".gcode"
 
         ### Export
         with open(file_path, 'w') as f:
