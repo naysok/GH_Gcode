@@ -67,3 +67,23 @@ class Util():
                     list_pad.append(item_)
         
         return list_pad
+
+
+    def remove_previous_elements(self, a_list):
+
+        ### Remove Same Element as the Previous One
+        new_list = []
+        src_length = len(a_list)
+
+        for i in range(src_length):
+            tmp = a_list[i]
+
+            ### 
+            if i < src_length-1:
+                if a_list[i] != a_list[i+1]:
+                    new_list.append(tmp)
+            ### Last
+            else:
+                new_list.append(tmp)
+                
+        return new_list
