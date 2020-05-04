@@ -40,6 +40,57 @@ class Util():
 
         print("Export GCode : {}".format(file_path))
 
+
+    def zip_matrix(self, mat):
+        ### https://note.nkmk.me/python-list-transpose/
+        return [list(x) for x in zip(*mat)]
+
+
+    def padding_previous_value(self, list_):
+        
+        list_pad = []
+
+        for i in xrange(len(list_)):
+            
+            item_ = list_[i]
+
+            ### First 
+            if i == 0:
+                if (item_ == None):
+                    list_pad.append(0)
+                else:
+                    list_pad.append(item_)
+            
+            ### Not Frist
+            else:
+                if (item_ == None):
+                    tmp = list_pad[i-1]
+                    list_pad.append(tmp)
+                else:
+                    list_pad.append(item_)
+        
+        return list_pad
+
+
+    def remove_previous_elements(self, a_list):
+
+        ### Remove Same Element as the Previous One
+        new_list = []
+        src_length = len(a_list)
+
+        for i in range(src_length):
+            tmp = a_list[i]
+
+            ### 
+            if i < src_length-1:
+                if a_list[i] != a_list[i+1]:
+                    new_list.append(tmp)
+            ### Last
+            else:
+                new_list.append(tmp)
+                
+        return new_list
+
 ut = Util()
 
 
@@ -213,7 +264,7 @@ class BigGcode():
         ### M4
         txt.append(self.define_stop_filament(m4_s, stop_time))
 
-        ### travel
+        ### Travel
         txt.append(self.define_travel(cz, z_buffer))
 
         txt_join = "".join(txt)
@@ -221,7 +272,7 @@ class BigGcode():
         return txt_join
 
 
-    def points_list_to_gcode(self, points_list, m3_s, m4_s, f, z_offset, stop_time, z_buffer):
+    def points_list_to_gcode(self, points_list, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
         
         export = []
 
@@ -239,9 +290,15 @@ class BigGcode():
         for i in xrange(len(points_list)):
             
             pts = points_list[i]
-
-            export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-            export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
+            
+            ### Fisrt Layer
+            if i == 0:
+                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
+                export.append(self.points_to_gcode(pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
+            ### Second - Last Layer
+            else:
+                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
+                export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
         
         ### gcode end
         export.append(self.gcode_end())
@@ -270,7 +327,7 @@ DEV = ut.flatten_runtime_list(pts_off)
 
 
 ### Points to Gcode
-gcode = gg.points_list_to_gcode(pts_off, M3_S_VALUE, M4_S_VALUE, F_VALUE, Z_OFFSET_VALUE, M4_STOP_TIME, Z_BUFFER)
+gcode = gg.points_list_to_gcode(pts_off, M3_S_VALUE, M3_S_VALUE_1st, M4_S_VALUE, F_VALUE, F_VALUE_1st, Z_OFFSET_VALUE, M4_STOP_TIME, Z_BUFFER)
 
 
 
