@@ -1,5 +1,3 @@
-import rhinoscriptsyntax as rs
-
 from . import util
 ut = util.Util()
 reload(util)
@@ -179,10 +177,14 @@ class ViewerBig():
 
     def draw_path(self, values_4):
 
+        ### Remove Same Element as the Previous One
+        xyzs = ut.remove_previous_elements(values_4)
+        # print(len(values_4), len(xyzs))
+
         ### Draw All Path
         pts = []
-        for i in xrange(len(values_4)):
-            x, y, z, s = values_4[i]
+        for i in xrange(len(xyzs)):
+            x, y, z, s = xyzs[i]
             pt = [x, y, z]
             pts.append(pt)
         
