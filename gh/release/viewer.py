@@ -1,7 +1,100 @@
+import datetime
+import math
+
 import rhinoscriptsyntax as rs
 
 
-class Gcode_for_GH():
+class Util():
+
+
+    def get_current_time(self):
+        return str(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
+
+    def remap_number(self, src, old_min, old_max, new_min, new_max):
+        return ((src - old_min) / (old_max - old_min) * (new_max - new_min) + new_min)
+
+
+    def flatten_runtime_list(self, list):
+        all = []
+        
+        for i in xrange(len(list)):
+            # print(i)
+            sub = list[i]
+            for j in xrange(len(sub)):
+                # print(j)
+                all.append(sub[j])
+
+        return all
+
+
+    def export_gcode(self, dir_path, txt):
+
+        now = self.get_current_time()
+        file_path = dir_path + now + ".gcode"
+
+        ### Export
+        with open(file_path, 'w') as f:
+            f.write(txt)
+
+        print("Export GCode : {}".format(file_path))
+
+
+    def zip_matrix(self, mat):
+        ### https://note.nkmk.me/python-list-transpose/
+        return [list(x) for x in zip(*mat)]
+
+
+    def padding_previous_value(self, list_):
+        
+        list_pad = []
+
+        for i in xrange(len(list_)):
+            
+            item_ = list_[i]
+
+            ### First 
+            if i == 0:
+                if (item_ == None):
+                    list_pad.append(0)
+                else:
+                    list_pad.append(item_)
+            
+            ### Not Frist
+            else:
+                if (item_ == None):
+                    tmp = list_pad[i-1]
+                    list_pad.append(tmp)
+                else:
+                    list_pad.append(item_)
+        
+        return list_pad
+
+
+    def remove_previous_elements(self, a_list):
+
+        ### Remove Same Element as the Previous One
+        new_list = []
+        src_length = len(a_list)
+
+        for i in range(src_length):
+            tmp = a_list[i]
+
+            ### 
+            if i < src_length-1:
+                if a_list[i] != a_list[i+1]:
+                    new_list.append(tmp)
+            ### Last
+            else:
+                new_list.append(tmp)
+                
+        return new_list
+
+ut = util.Util()
+
+
+class ViewerBig():
+    
     
     def open_file(self, path):
         with open(path) as f:
@@ -10,102 +103,191 @@ class Gcode_for_GH():
         # print(len(l))
         # print(l)
         return l
-    
-    def add_xyz_to_polyline(self, path):
 
-        gcode = self.open_file(path)
 
-        count = 0
-        x = []
-        y = []
-        z = []
+    def get_value_g1(self, str_):
+        
+        ### Split Elements
+        elements = str_.split()
 
         ### init
-        x.append(0)
-        y.append(0)
-        z.append(0)
-
-        # loop = 20
-        loop = len(gcode)
-
-        for i in range(loop):
-
-            count += 1
-            str_ = gcode[i]
-            
-            if ("X" in str_):
-                ### Split Elements
-                elements = str_.split()
-                for j in range(len(elements)):
-                    e = elements[j]
-                    
-                    if ("X" in e):
-                        tmp_x = e.split("X")
-                        x.append(tmp_x[1])
-            else:
-                tmp_x = x[i]
-                x.append(tmp_x)
-
-        for ii in range(loop):
-
-            str_ = gcode[ii]
-            
-            if ("Y" in str_):
-                ### Split Elements
-                elements = str_.split()
-                for jj in range(len(elements)):
-                    e = elements[jj]
-                    
-                    if ("Y" in e):
-                        tmp_y = e.split("Y")
-                        y.append(tmp_y[1])
-            else:
-                tmp_y = y[ii]
-                y.append(tmp_y)
-
-        for iii in range(loop):
-
-            str_ = gcode[iii]
-            
-            if ("Z" in str_):
-                ### Split Elements
-                elements = str_.split()
-                for jjj in range(len(elements)):
-                    e = elements[jjj]
-                    
-                    if ("Z" in e):
-                        tmp_z = e.split("Z")
-                        z.append(tmp_z[1])
-            else:
-                tmp_z = z[iii]
-                z.append(tmp_z)
-
-        # print("x : {} / {}".format(len(x), x))
-        # print("y : {} / {}".format(len(y), y))
-        # print("z : {} / {}".format(len(z), z))
-
-        print("Count : {}".format(count))
+        xx = None
+        yy = None
+        zz = None
         
-        return x, y, z
-     
-    def zip_matrix(self, mat):
-        ### https://note.nkmk.me/python-list-transpose/
-        return [list(x) for x in zip(*mat)]
+        for i in xrange(len(elements)):
+            elm = elements[i]
 
+            ### Get Value
+            if ("X" in elm):
+                tmp_x = elm.split("X")
+                xx = float(tmp_x[1])
+            
+            elif ("Y" in elm):
+                tmp_y = elm.split("Y")
+                yy = float(tmp_y[1])
+            
+            elif ("Z" in elm):
+                tmp_z = elm.split("Z")
+                zz = float(tmp_z[1])
+
+        return [xx, yy, zz, None]
+
+
+    def get_value_g28(self, str_):
+        
+        ### G28 = Machine Origin
+        mo_x, mo_y, mo_z = [0, 0, 1300]
+
+        ### Split Elements
+        elements = str_.split()
+
+        ### init
+        xx = None
+        yy = None
+        zz = None
+
+        for i in xrange(len(elements)):
+            elm = elements[i]
+
+            ### Get Value
+            if ("X" in elm):
+                tmp_x = elm.split("X")
+                xx = float(tmp_x[1])
+            
+            elif ("Y" in elm):
+                tmp_y = elm.split("Y")
+                yy = float(tmp_y[1])
+            
+            elif ("Z" in elm):
+                tmp_z = elm.split("Z")
+                zz = float(tmp_z[1])
+
+        ### G28 = Macine Origin
+        if xx != None:
+            xxx = mo_x - xx
+        else:
+            xxx = None
+        if yy != None:
+            yyy = mo_y - yy
+        else:
+            yyy = None
+        
+        if zz != None:
+            zzz = mo_z - zz
+        else:
+            zzz = None
+
+        return [xxx, yyy, zzz, None]
+
+
+    # def get_value_m3(self, str_):
+
+
+    # def get_value_m4(self, str_):
+
+
+    def gcode_oprate(self, gcode_line):
+
+        none_list = [None, None, None, None]
+
+        ### Move
+        if ("G1" in gcode_line) or ("G01" in gcode_line):
+            return self.get_value_g1(gcode_line)
+
+        ### Commment Out
+        elif ("(" in gcode_line) or ("%" in gcode_line):
+            return none_list
+
+        ### Print Start
+        elif ("M3" in gcode_line) or ("M03" in gcode_line):
+            # return "m3"
+            return none_list
+
+        ### Print Stop
+        elif ("M4" in gcode_line) or ("M04" in gcode_line):
+            # return "m4"
+            return none_list
+
+        ### Move G28
+        elif ("G28" in gcode_line):
+            # self.get_value_g28(gcode_line
+            return none_list
+
+        ### Setting G
+        elif ("G4" in gcode_line) or ("G49" in gcode_line) or ("G54" in gcode_line) or ("G80" in gcode_line) or ("G90" in gcode_line) or ("G91" in gcode_line):
+            return none_list
+
+        ### Setting M
+        elif ("M5" in gcode_line) or ("M7" in gcode_line) or ("M55" in gcode_line):
+            return none_list
+        
+        ### Print S0
+        elif ("S0" in gcode_line):
+            return none_list
+
+        else:
+            return none_list
+            # return "BUG"
+
+
+    def gcode_to_array(self, path):
+
+        ### open gcode
+        gcode = self.open_file(path)
+
+        ### Get Vaules from gcode
+        values = []
+        for i in xrange(len(gcode)):
+            gcode_line = gcode[i]
+            elements = self.gcode_oprate(gcode_line)
+
+            ### DEBUG
+            # if (elements == "BUG"):
+            #     print(i, gcode_line)
+            ### DEBUG
+
+            values.append(elements)
+
+        ### Padding Previous Value(None)
+        values_zip = ut.zip_matrix(values)
+        # print(len(values_zip))
+        new_values = []
+        for j in xrange(len(values_zip)):
+            list_ = values_zip[j]
+            list_pad = ut.padding_previous_value(list_)
+            new_values.append(list_pad)
+        gcode_values = ut.zip_matrix(new_values)
+
+        # print(len(values))
+        # print(len(gcode_values))
+
+        return gcode_values
+
+
+    def draw_path(self, values_4):
+
+        ### Remove Same Element as the Previous One
+        xyzs = ut.remove_previous_elements(values_4)
+        # print(len(values_4), len(xyzs))
+
+        ### Draw All Path
+        pts = []
+        for i in xrange(len(xyzs)):
+            x, y, z, s = xyzs[i]
+            pt = [x, y, z]
+            pts.append(pt)
+        
+        return pts
+
+vb = viewer_big.ViewerBig()
 
 
 ###################################
 
 
-gg = Gcode_for_GH()
+xyzs = vb.gcode_to_array(PATH)
 
-
-v = gg.add_xyz_to_polyline(PATH)
-v_f = gg.zip_matrix(v)
-
-print(len(v_f))
-#print(v_f)
-
-
-
-MOVE = rs.AddPolyline(v_f)
+#print(xyzs)
+points_ = vb.draw_path(xyzs) 
+MOVE = rs.AddPolyline(points_)
