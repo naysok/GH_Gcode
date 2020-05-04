@@ -79,7 +79,7 @@ class BigGcode():
         return txt_join
 
 
-    def points_list_to_gcode(self, points_list, m3_s, m4_s, f, z_offset, stop_time, z_buffer):
+    def points_list_to_gcode(self, points_list, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
         
         export = []
 
@@ -97,9 +97,15 @@ class BigGcode():
         for i in xrange(len(points_list)):
             
             pts = points_list[i]
-
-            export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-            export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
+            
+            ### Fisrt Layer
+            if i == 0:
+                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
+                export.append(self.points_to_gcode(pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
+            ### Second - Last Layer
+            else:
+                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
+                export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
         
         ### gcode end
         export.append(self.gcode_end())
