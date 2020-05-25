@@ -145,6 +145,17 @@ class Curve():
 
     def polyline_to_points(self, polyline):
 
+        ### NEW CODE
+
+        ### Polyline to Points
+        ### https://developer.rhino3d.com/api/RhinoScriptSyntax/#collapse-PolylineVertices
+        
+        points = rs.PolylineVertices(polyline)
+
+
+        """
+        ### OLD CODE
+
         points = []
 
         ### Start Point
@@ -160,6 +171,7 @@ class Curve():
         ### End Point
         end_pt =  rs.CurveEndPoint(polyline)
         points.append(end_pt)
+        """
         
         return points
 
