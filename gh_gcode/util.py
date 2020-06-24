@@ -1,6 +1,8 @@
 import datetime
 import math
 
+import rhinoscriptsyntax as rs
+import Rhino.Geometry as rg
 
 class Util():
 
@@ -87,3 +89,32 @@ class Util():
                 new_list.append(tmp)
                 
         return new_list
+    
+
+    def draw_machine(self):
+
+        rects = []
+
+        machine_origin = [-69, -100]
+        machine_max = [1700, 1300]
+
+        ### Panel
+        panel_size = 500
+        panel_count = 12
+        vv = 3
+
+        for i in xrange(panel_count):
+
+            u, v = divmod(i, vv)
+            tmp_origin = (machine_origin[0] + (500 * u) , machine_origin[1] + (500 *v), 0)
+            pl = rs.MovePlane(rs.WorldXYPlane(), tmp_origin)
+            rc = rs.AddRectangle(pl, panel_size, panel_size)
+            rects.append(rc)
+
+        ### Print Area
+        print_origin = (0, 0, 0)
+        pl = rs.MovePlane(rs.WorldXYPlane(), print_origin)
+        rc = rs.AddRectangle(pl, machine_max[0], machine_max[1])
+        rects.append(rc)
+
+        return rects
