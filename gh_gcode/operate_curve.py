@@ -12,16 +12,18 @@ class Curve():
 
     def polyline_to_points(self, polyline):
 
-        ### NEW CODE
+        ########## NEW CODE ##########
 
-        ### Polyline to Points
-        ### https://developer.rhino3d.com/api/RhinoScriptSyntax/#collapse-PolylineVertices
-        
-        points = rs.PolylineVertices(polyline)
+        ### Polyline to Points by RhinoCommon
+        pl = rs.coercegeometry(polyline)
+        new_pl = rg.PolylineCurve.ToPolyline(pl)
+        points = new_pl.ToArray()
+
+        ########## NEW CODE ##########
 
 
         """
-        ### OLD CODE
+        ########## OLD CODE 1 ##########
 
         points = []
 
@@ -38,6 +40,17 @@ class Curve():
         ### End Point
         end_pt =  rs.CurveEndPoint(polyline)
         points.append(end_pt)
+
+        ########## OLD CODE 1 ##########
+
+        ########## OLD CODE 2 ##########
+        
+        ### Polyline to Points by rhinoscriptsuntax
+        ### https://developer.rhino3d.com/api/RhinoScriptSyntax/#collapse-PolylineVertices
+        
+        points = rs.PolylineVertices(polyline)
+        
+        ########## OLD CODE 2 ##########
         """
         
         return points
