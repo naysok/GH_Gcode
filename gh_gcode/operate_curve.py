@@ -68,7 +68,7 @@ class Curve():
         return points_array
 
 
-    def offset_z(self, points, z_offset_value):
+    def offset_z_points(self, points, z_offset_value):
 
         move_vec = [0, 0, z_offset_value]
 
@@ -86,3 +86,11 @@ class Curve():
             points_off.append(sub)
         
         return points_off
+
+
+    def offset_z_curves(self, curves, z_offset_value):
+
+        move_vec = rs.CreateVector(0, 0, z_offset_value)
+        geos_off = rs.MoveObjects(curves, move_vec)
+        
+        return geos_off
