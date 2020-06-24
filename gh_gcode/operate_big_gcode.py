@@ -24,9 +24,15 @@ class BigGcode():
         return "( Polyline to Gcode by Grasshopper )\n( For EB 3D Printer )\n( --- )\n"
 
 
-    def define_print_parameter(self, f, m3, m4, z_offset, stop_time, z_buffer):
+    def define_print_parameter(self, component, f, m3, m4, z_offset, stop_time, z_buffer):
+
         now = ut.get_current_time()
-        return "( Export : {} )\n( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( M4 Stop Time : {} )\n( Z Offset Value : {} )\n( --- )\n".format(now, f, m3, m4, stop_time, z_offset)
+        time = "( Export : {} )\n".format(now)
+        comp_info = "( Component Info : {} )\n".format(component)
+        values = "( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( M4 Stop Time : {} )\n( Z Offset Value : {} )\n".format(f, m3, m4, stop_time, z_offset)
+        line = "( --- )\n"
+
+        return time + comp_info + values + line
 
 
     def define_extrude_filament(self, parge_value):
@@ -79,13 +85,13 @@ class BigGcode():
         return txt_join
 
 
-    def points_list_to_gcode(self, points_list, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
+    def points_list_to_gcode(self, points_list, comp_info, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
         
         export = []
 
         ### print msg, print parameter
         export.append(self.define_print_msg())
-        export.append(self.define_print_parameter(f, m3_s, m4_s, z_offset, stop_time, z_buffer))
+        export.append(self.define_print_parameter(comp_info, f, m3_s, m4_s, z_offset, stop_time, z_buffer))
 
         ### gcode start
         export.append(self.gcode_start())
@@ -102,6 +108,7 @@ class BigGcode():
             if i == 0:
                 export.append("( ========= Layer : {} ========= )\n".format(i + 1))
                 export.append(self.points_to_gcode(pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
+            
             ### Second - Last Layer
             else:
                 export.append("( ========= Layer : {} ========= )\n".format(i + 1))
