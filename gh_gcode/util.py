@@ -123,6 +123,10 @@ class Util():
         ### Back
         if machine_max[1] < print_max[1]:
             msg.append("Over Y_Max!!\n")
+        
+        ### Bottom
+        if machine_min[2] > print_min[2]:
+            msg.append("Over Z_Mini!!\n")
 
         if msg == []:
             msg.append("OK!!")
