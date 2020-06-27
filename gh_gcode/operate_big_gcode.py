@@ -19,7 +19,7 @@ class BigGcode():
         return "( == gcode start == )\n%\nG91\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
 
-    def head_start(self):
+    def head1_start(self):
         return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
 
 
@@ -110,8 +110,8 @@ class BigGcode():
         ### gcode start
         export.append(self.gcode_start())
 
-        ### head start
-        export.append(self.head_start())
+        ### head1 start
+        export.append(self.head1_start())
 
         ### gcode
         for i in xrange(len(points_list)):
