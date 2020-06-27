@@ -29,8 +29,14 @@ class Util_EB(util.Util):
         
         print_min, print_max = self.calc_print_area(points_array)
 
+        bbox = None
         msg = []
 
+        ### Draw Bouinding Box
+
+        bbox = rg.BoundingBox(print_min, print_max)
+
+        ### Check Print Area
         ### Left
         if machine_min[0] > print_min[0]:
             msg.append("Over X_Mini!!\n")
@@ -54,7 +60,7 @@ class Util_EB(util.Util):
         if msg == []:
             msg.append("OK!!")
 
-        return msg
+        return msg, bbox
 
 
     def draw_machine(self):
