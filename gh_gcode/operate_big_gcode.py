@@ -12,12 +12,22 @@ class BigGcode():
         return "( == gcode start == )\n%\nG91\nG28 Z0.000\nG28 X0.000 Y0.000\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
 
+    def gcode_start_no_origin(self):
+        ### Don't Go Through Machine Origin, Gcode Start
+        return "( == gcode start == )\n%\nG91\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
+
+
     def head_start(self):
         return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
 
 
     def gcode_end(self):
         return "( == gcode end == )\nM3 S0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
+
+
+    def gcode_end_no_origin(self):
+        ### Don't Go Through Machine Origin, Gcode End
+        return "( == gcode end == )\nM3 S0\nM5\nG91\nM30\n%\n( == gcode end == )\n"
 
 
     def define_print_msg(self):
