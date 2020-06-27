@@ -23,6 +23,10 @@ class BigGcode():
         return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
 
 
+    def head2_start(self):
+        return "( === head2 start ===)\nM57\nM13 S0 P2\nM7\n( === head2 start ===)\n( - )\n"
+
+
     def gcode_end(self):
         ### Original
         ### Go Through Machine Origin, Gcode End
