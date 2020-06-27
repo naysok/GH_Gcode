@@ -33,7 +33,6 @@ class Util_EB(util.Util):
         msg = []
 
         ### Draw Bouinding Box
-
         bbox = rg.BoundingBox(print_min, print_max)
 
         ### Check Print Area
