@@ -89,3 +89,20 @@ class Util_EB(util.Util):
         rects.append(rc)
 
         return rects
+
+
+    def print_preview(self, points_array):
+
+        pls = []
+        lens_ = 0.0
+
+        for i in xrange(len(points_array)):
+            pl = rg.Polyline(points_array[i])
+            pls.append(pl)
+            
+            len_ = pl.Length
+            lens_ += float(len_)
+        
+        lens_int = int(lens_)
+
+        return pls, lens_int
