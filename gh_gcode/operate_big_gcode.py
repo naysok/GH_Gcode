@@ -9,6 +9,8 @@ class BigGcode():
 
 
     def gcode_start(self):
+        ### Original
+        ### Go Through Machine Origin, Gcode Start
         return "( == gcode start == )\n%\nG91\nG28 Z0.000\nG28 X0.000 Y0.000\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
 
@@ -22,6 +24,8 @@ class BigGcode():
 
 
     def gcode_end(self):
+        ### Original
+        ### Go Through Machine Origin, Gcode End
         return "( == gcode end == )\nM3 S0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
 
 
