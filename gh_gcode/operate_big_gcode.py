@@ -15,7 +15,7 @@ class BigGcode():
 
 
     def gcode_start_no_origin(self):
-        ### Don't Go Through Machine Origin, Gcode Start
+        ### Not Go Through Machine Origin, Gcode Start
         return "( == gcode start == )\n%\nG91\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
 
@@ -34,7 +34,7 @@ class BigGcode():
 
 
     def gcode_end_no_origin(self):
-        ### Don't Go Through Machine Origin, Gcode End
+        ### Not Go Through Machine Origin, Gcode End
         return "( == gcode end == )\nM3 S0\nM5\nG91\nM30\n%\n( == gcode end == )\n"
 
 
@@ -142,7 +142,7 @@ class BigGcode():
 
     def points_list_to_gcode_no_origin(self, points_list, comp_info, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
         
-        ### Don't Go Through Machine Origin
+        ### Not Go Through Machine Origin
 
         export = []
 
