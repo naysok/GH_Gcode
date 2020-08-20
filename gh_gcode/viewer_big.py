@@ -185,7 +185,13 @@ class ViewerBig():
         pts = []
         for i in xrange(len(xyzs)):
             x, y, z, s = xyzs[i]
+        
+            ### XYZ Values List
             pt = [x, y, z]
             pts.append(pt)
-        
+
+            ### Point3d List
+            # pt = rg.Point3d(x, y, z)
+            # pts.append(pt)
+
         return pts
