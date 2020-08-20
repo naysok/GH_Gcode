@@ -30,12 +30,17 @@ class ViewerMarlin():
         else:
             new_str = str_
 
+        ### Gcode (per Line)
+        # print(new_str)
+
+        ### Sprit Space
         elements = new_str.split()
 
         ### init
         xx = None
         yy = None
         zz = None
+        ee = None
         
         for i in xrange(len(elements)):
             elm = elements[i]
@@ -53,18 +58,23 @@ class ViewerMarlin():
                 tmp_z = elm.split("Z")
                 zz = float(tmp_z[1])
 
-        return [xx, yy, zz]
+            elif ("E" in elm):
+                tmp_e = elm.split("E")
+                ee = float(tmp_e[1])
+
+        return [xx, yy, zz, ee]
 
 
-    def gcode_oprate_move(self, gcode_line):
+    def gcode_operate_move(self, gcode_line):
 
-        none_list = [None, None, None]
+        none_list = [None, None, None, None]
 
         ### Move
         if ("G0" in gcode_line) or \
             ("G1" in gcode_line) or \
             ("G00" in gcode_line) or \
-            ("G01" in gcode_line):
+            ("G01" in gcode_line) or \
+            ("G92 E0" in gcode_line):
             ### get position
             return self.get_value_move(gcode_line)
 
@@ -116,7 +126,9 @@ class ViewerMarlin():
         values = []
         for i in xrange(len(gcode)):
             gcode_line = gcode[i]
-            elements = self.gcode_oprate_move(gcode_line)
+
+            ### XYZE
+            elements = self.gcode_operate_move(gcode_line)
 
             ## DEBUG ALL
             # print(i, gcode_line)
@@ -145,10 +157,18 @@ class ViewerMarlin():
 
     def draw_path(self, values_4):
 
+        ### Remove Same Element as the Previous One
+        xyze = ut.remove_previous_elements(values_4)
+        ### print(len(values_4), len(xyze))
+
+        ###
+        ### Segment Print / Travel
+        ###
+
         ### Draw All Path
         pts = []
-        for i in xrange(len(values_4)):
-            x, y, z = values_4[i]
+        for i in xrange(len(xyze)):
+            x, y, z, e = values_4[i]
             pt = [x, y, z]
             pts.append(pt)
         
