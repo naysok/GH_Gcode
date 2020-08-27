@@ -47,7 +47,10 @@ class BigGcode():
         now = ut.get_current_time()
         time = "( Export : {} )\n".format(now)
         comp_info = "( Component Info : {} )\n".format(component)
-        values = "( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( M4 Stop Time : {} )\n( Z Offset Value : {} )\n".format(f, m3, m4, stop_time, z_offset)
+        ### M4
+        # values = "( F Value : {} )\n( M3 S Value: {} )\n( M4 S Value : {} )\n( M4 Stop Time : {} )\n( Z Offset Value : {} )\n".format(f, m3, m4, stop_time, z_offset)
+        ### M4 Removed
+        values = "( F Value : {} )\n( M3 S Value: {} )\n( Z Offset Value : {} )\n".format(f, m3, z_offset)
         line = "( --- )\n"
 
         return time + comp_info + values + line
