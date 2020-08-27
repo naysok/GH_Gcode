@@ -58,7 +58,10 @@ class BigGcode():
 
 
     def define_stop_filament(self, reverse_value, stop_time):
-        return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nM3 S0\n".format(reverse_value, stop_time)
+        ### M4 (Reversed)
+        # return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nM3 S0\n".format(reverse_value, stop_time)
+        ### M3
+        return "( == Stop Filament == )\nM3 S0\n"
 
 
     def define_travel(self, current_z, z_buffer):
