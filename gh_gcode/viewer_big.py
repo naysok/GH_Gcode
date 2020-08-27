@@ -97,7 +97,7 @@ class ViewerBig():
     # def get_value_m4(self, str_):
 
 
-    def gcode_oprate(self, gcode_line):
+    def gcode_operate(self, gcode_line):
 
         none_list = [None, None, None, None]
 
@@ -150,7 +150,7 @@ class ViewerBig():
         values = []
         for i in xrange(len(gcode)):
             gcode_line = gcode[i]
-            elements = self.gcode_oprate(gcode_line)
+            elements = self.gcode_operate(gcode_line)
 
             ### DEBUG
             # if (elements == "BUG"):
@@ -185,7 +185,13 @@ class ViewerBig():
         pts = []
         for i in xrange(len(xyzs)):
             x, y, z, s = xyzs[i]
+        
+            ### XYZ Values List
             pt = [x, y, z]
             pts.append(pt)
-        
+
+            ### Point3d List
+            # pt = rg.Point3d(x, y, z)
+            # pts.append(pt)
+
         return pts
