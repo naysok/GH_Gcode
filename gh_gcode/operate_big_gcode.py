@@ -35,7 +35,7 @@ class BigGcode():
 
     def gcode_end_no_origin(self):
         ### Not Go Through Machine Origin, Gcode End
-        return "( == gcode end == )\nM3 S0\nM5\nG91\nM30\n%\n( == gcode end == )\n"
+        return "( == gcode end == )\nM3 S0\nM5\nG91\nG28 Z0\nM30\n%\n( == gcode end == )\n"
 
 
     def define_print_msg(self):
@@ -71,7 +71,7 @@ class BigGcode():
         ### buffer (mm)
         Z_BUFFER = float(z_buffer)
         new_z = str(float(current_z) + Z_BUFFER)
-        return ("( == Travel == )\nG1 Z{}\n( - )\n".format(new_z))
+        return ("( == Travel == )\nG1 Z{}\n".format(new_z))
 
 
     def points_to_gcode(self,points, m3_s, m4_s, f, stop_time, z_buffer):
