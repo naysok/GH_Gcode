@@ -19,8 +19,12 @@ class BigGcode():
         return "( == gcode start == )\n%\nG91\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
 
 
-    def head1_start(self):
-        return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
+    def head1_start(self, m7_tf):
+        ### Select M7 (Nozzle Fan) ON-OFF
+        if str(m7_tf) == "0":
+            return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
+        else:
+            return "( === head1 start ===)\nM55\nM3 S0 P1\n( === head1 start ===)\n( - )\n"
 
 
     def head2_start(self):
@@ -146,7 +150,7 @@ class BigGcode():
         return export_join
 
 
-    def points_list_to_gcode_no_origin(self, points_list, comp_info, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
+    def points_list_to_gcode_no_origin(self, points_list, comp_info, m7_tf, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
         
         ### Not Go Through Machine Origin
 
@@ -160,7 +164,7 @@ class BigGcode():
         export.append(self.gcode_start_no_origin())
 
         ### head1 start
-        export.append(self.head1_start())
+        export.append(self.head1_start(m7_tf))
 
         ### gcode
         for i in xrange(len(points_list)):
