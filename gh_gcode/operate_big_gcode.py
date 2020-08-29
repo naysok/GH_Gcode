@@ -11,20 +11,20 @@ class BigGcode():
     def gcode_start(self):
         ### Original
         ### Go Through Machine Origin, Gcode Start
-        return "( == gcode start == )\n%\nG91\nG28 Z0.000\nG28 X0.000 Y0.000\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
+        return "%\nG91 ( == gcode start == )\nG28 Z0.000\nG28 X0.000 Y0.000\nG49\nG80\nG90\nG54\n"
 
 
     def gcode_start_no_origin(self):
         ### Not Go Through Machine Origin, Gcode Start
-        return "( == gcode start == )\n%\nG91\nG49\nG80\nG90\nG54\n( == gcode start == )\n( --- )\n"
+        return "%\nG91 ( == gcode start == )\nG49\nG80\nG90\nG54\n"
 
 
     def head1_start(self, m7_tf):
         ### Select M7 (Nozzle Fan) ON-OFF
         if str(m7_tf) == "0":
-            return "( === head1 start ===)\nM55\nM3 S0 P1\nM7\n( === head1 start ===)\n( - )\n"
+            return "M55 ( === head1 start ===)\nM3 S0 P1\nM7\n"
         else:
-            return "( === head1 start ===)\nM55\nM3 S0 P1\n( === head1 start ===)\n( - )\n"
+            return "M55 ( === head1 start ===)\nM3 S0 P1\n"
 
 
     def head2_start(self):
@@ -34,12 +34,12 @@ class BigGcode():
     def gcode_end(self):
         ### Original
         ### Go Through Machine Origin, Gcode End
-        return "( == gcode end == )\nM3 S0\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
+        return "\nM3 S0 ( == gcode end == )\nM5\nG91\nG28 Z0\nG28 X0 Y0\nM30\n%\n( == gcode end == )\n"
 
 
     def gcode_end_no_origin(self):
         ### Not Go Through Machine Origin, Gcode End
-        return "( == gcode end == )\nM3 S0\nM5\nG91\nG28 Z0\nM30\n%\n( == gcode end == )\n"
+        return "M3 S0 ( == gcode end == )\nM5\nG91\nG28 Z0\nM30\n%\n"
 
 
     def define_print_msg(self):
@@ -61,24 +61,24 @@ class BigGcode():
 
 
     def define_extrude_filament(self, parge_value):
-        return "( ==== Start Printing ==== )\n( == Extrude Filament == )\nM3 S{} P1\n".format(parge_value)
+        return "M3 S{} P1 ( == Extrude Filament == )\n".format(parge_value)
 
 
     def define_stop_filament(self, reverse_value, stop_time):
         ### M4 (Reversed)
         # return "( == Stop Filament == )\nM4 S{} P1\nG4 X{}\nM3 S0\n".format(reverse_value, stop_time)
         ### M3
-        return "( == Stop Filament == )\nM3 S0\n"
+        return "M3 S0 ( == Stop Filament == )\n"
 
 
     def define_travel(self, current_z, z_buffer):
         ### buffer (mm)
         Z_BUFFER = float(z_buffer)
         new_z = str(float(current_z) + Z_BUFFER)
-        return ("( == Travel == )\nG1 Z{}\n".format(new_z))
+        return ("G1 Z{} ( == Travel == )\n".format(new_z))
 
 
-    def points_to_gcode(self,points, m3_s, m4_s, f, stop_time, z_buffer):
+    def points_to_gcode(self, layer_info, points, m3_s, m4_s, f, stop_time, z_buffer):
 
         txt = []
 
@@ -89,7 +89,11 @@ class BigGcode():
             py = str("{:f}".format(_py))
             pz = str("{:f}".format(_pz))
 
-            txt.append("G1 X{} Y{} Z{} F{}\n".format(px, py, pz, f))
+            ### Add Layer Info on First Layer
+            if i == 0:
+                txt.append("G1 X{} Y{} Z{} F{} {}\n".format(px, py, pz, f, layer_info))
+            else:
+                txt.append("G1 X{} Y{} Z{} F{}\n".format(px, py, pz, f))
 
             ### Extrude Filament
             if i == 0:
@@ -113,41 +117,42 @@ class BigGcode():
         return txt_join
 
 
-    def points_list_to_gcode(self, points_list, comp_info, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
-        
-        export = []
-
-        ### print msg, print parameter
-        export.append(self.define_print_msg())
-        export.append(self.define_print_parameter(comp_info, f, m3_s, m4_s, z_offset, stop_time, z_buffer))
-
-        ### gcode start
-        export.append(self.gcode_start())
-
-        ### head1 start
-        export.append(self.head1_start())
-
-        ### gcode
-        for i in xrange(len(points_list)):
-            
-            pts = points_list[i]
-            
-            ### Fisrt Layer
-            if i == 0:
-                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-                export.append(self.points_to_gcode(pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
-            
-            ### Second - Last Layer
-            else:
-                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-                export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
-        
-        ### gcode end
-        export.append(self.gcode_end())
-
-        export_join = "".join(export)
-
-        return export_join
+    # def points_list_to_gcode(self, points_list, comp_info, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
+    #
+    #    ### Go Through Machine Origin
+    #
+    #     export = []
+    #
+    #     ### print msg, print parameter
+    #     export.append(self.define_print_msg())
+    #     export.append(self.define_print_parameter(comp_info, f, m3_s, m4_s, z_offset, stop_time, z_buffer))
+    #
+    #     ### gcode start
+    #     export.append(self.gcode_start())
+    #
+    #     ### head1 start
+    #     export.append(self.head1_start())
+    #
+    #     ### gcode
+    #     for i in xrange(len(points_list)):
+    #
+    #         pts = points_list[i]
+    #         layer_info = "( ========= Layer : {} ========= )".format(i + 1)
+    #
+    #         ### Fisrt Layer
+    #         if i == 0:
+    #             export.append(self.points_to_gcode(layer_info, pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
+    #
+    #         ### Second - Last Layer
+    #         else:
+    #             export.append(self.points_to_gcode(layer_info, pts, m3_s, m4_s, f, stop_time, z_buffer))
+    #
+    #     ### gcode end
+    #     export.append(self.gcode_end())
+    #
+    #     export_join = "".join(export)
+    #
+    #     return export_join
 
 
     def points_list_to_gcode_no_origin(self, points_list, comp_info, m7_tf, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
@@ -170,16 +175,15 @@ class BigGcode():
         for i in xrange(len(points_list)):
             
             pts = points_list[i]
+            layer_info = "( ========= Layer : {} ========= )".format(i + 1)
             
             ### Fisrt Layer
             if i == 0:
-                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-                export.append(self.points_to_gcode(pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
+                export.append(self.points_to_gcode(layer_info, pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
             
             ### Second - Last Layer
             else:
-                export.append("( ========= Layer : {} ========= )\n".format(i + 1))
-                export.append(self.points_to_gcode(pts, m3_s, m4_s, f, stop_time, z_buffer))
+                export.append(self.points_to_gcode(layer_info, pts, m3_s, m4_s, f, stop_time, z_buffer))
         
         ### gcode end
         export.append(self.gcode_end_no_origin())
