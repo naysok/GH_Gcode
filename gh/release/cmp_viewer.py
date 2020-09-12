@@ -290,6 +290,9 @@ vb = ViewerBig()
 ###################################
 
 
+ghenv.Component.Message = 'Viewer / 200821'
+
+
 time_0 = time.time()
 
 
