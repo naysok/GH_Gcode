@@ -1,7 +1,9 @@
+import rhinoscriptsyntax as rs
+import Rhino.Geometry as rg
+
 import datetime
 import math
-
-import rhinoscriptsyntax as rs
+import time
 
 
 class Util():
@@ -90,7 +92,7 @@ class Util():
                 
         return new_list
 
-ut = util.Util()
+ut = Util()
 
 
 class ViewerBig():
@@ -280,14 +282,44 @@ class ViewerBig():
         
         return pts
 
-vb = viewer_big.ViewerBig()
+vb = ViewerBig()
 
 
 ###################################
 
+###################################
 
+
+time_0 = time.time()
+
+
+### gcode-file to Memory
 xyzs = vb.gcode_to_array(PATH)
 
-#print(xyzs)
-points_ = vb.draw_path(xyzs) 
+
+time_1 = time.time()
+
+
+### Pick Values
+points_ = vb.draw_path(xyzs)
+
+
+time_2 = time.time()
+
+
+### Draw Printing
 MOVE = rs.AddPolyline(points_)
+
+
+time_3 = time.time()
+
+
+
+
+#time_01 = time_1 - time_0
+#time_12 = time_2 - time_1
+#time_23 = time_3 - time_2
+#
+#print ("Time 01 : {0}".format(time_01) + "[sec]")
+#print ("Time 12 : {0}".format(time_12) + "[sec]")
+#print ("Time 23 : {0}".format(time_23) + "[sec]")
