@@ -27,7 +27,6 @@
 
 - gcode(E) to Polylines  
 - Atrribute Mode // 吐出量を細かな単位でいじるため  
-- Bug Fix  
 
 
 ### Marlin_Firmware  
