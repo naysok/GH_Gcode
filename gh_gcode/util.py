@@ -87,3 +87,49 @@ class Util():
                 new_list.append(tmp)
                 
         return new_list
+
+
+    def bitwise_or_arrays(self, arrays):
+
+        ### Merge Bool from Brep.isPointInside
+
+        # print(len(arrays[0]))
+        # print(len(arrays[0][0]))
+
+        if len(arrays) == 1:
+            return arrays[0]
+
+        else:
+            arrays_zip = self.zip_matrix(arrays)
+            # print(len(arrays_zip))
+            # print(len(arrays_zip[0]))
+            # print(len(arrays_zip[0][0]))
+
+            bool_inside = []
+
+            for i in xrange(len(arrays_zip)):
+                # print(i)
+
+                sub_ = []
+
+                item = arrays_zip[i]
+                item_zip = self.zip_matrix(item)
+
+                # print(len(item_zip))
+                # print(len(item_zip[0]))
+
+                for j in xrange(len(item_zip)):
+
+                    values = item_zip[j]
+                    
+                    if True in values:
+                        sub_.append(True)
+                    else:
+                        sub_.append(False)
+
+                bool_inside.append(sub_)
+
+            # print(len(bool_inside))
+            # print(len(bool_inside[0]))
+
+            return bool_inside
