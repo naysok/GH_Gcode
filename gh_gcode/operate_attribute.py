@@ -53,8 +53,37 @@ class Attribute():
         return bool_inside
     
 
+    def define_attribute(self, bool_inside, weight_value):
+        
+        ### Define Attribute-Value (Weight)
+        ### For Attribute Mode
+
+        new_values = []
+
+        for i in xrange(len(bool_inside)):
+            bb = bool_inside[i]
+            
+            sub_ = []
+
+            for j in xrange(len(bb)):
+                b = bb[j]
+
+                ### Inside
+                if b:
+                    sub_.append(float(weight_value))
+                
+                else:
+                    sub_.append(1.0)
+        
+            new_values.append(sub_)
+        
+        return new_values
+    
+
     def render_attribute(self, points, bool_inside):
         
+        ### Render Attribute-Values
+
         render = []
         pts_weighting = []
 
@@ -73,7 +102,7 @@ class Attribute():
                     pts_weighting.append(p)
 
                 else:
-                    sub_render.append(rs.AddCircle(p, 3))
+                    sub_render.append(rs.AddCircle(p, 4))
             
             render.append(sub_render)
         
