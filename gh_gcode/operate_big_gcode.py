@@ -106,7 +106,7 @@ class BigGcode():
                 cz = "{:f}".format(_cz)
 
         ### Printting Stop
-        ### M4
+        ### M3 S0
         txt.append(self.define_stop_filament(m4_s, stop_time))
 
         ### Travel
@@ -229,7 +229,7 @@ class BigGcodeAttribute(BigGcode):
                 cz = "{:f}".format(_cz)
 
         ### Printting Stop
-        ### M4
+        ### M3 S0
         txt.append(self.define_stop_filament(m4_s, stop_time))
 
         ### Travel
