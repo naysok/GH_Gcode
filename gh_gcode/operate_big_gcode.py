@@ -191,3 +191,84 @@ class BigGcode():
         export_join = "".join(export)
 
         return export_join
+
+
+### Attribute Mode
+class BigGcodeAttribute(BigGcode):
+
+
+    def points_to_gcode(self, layer_info, points, m3_s, m4_s, f, stop_time, z_buffer):
+
+        txt = []
+
+        ### Printing
+        for i in xrange(len(points)):
+            _px, _py, _pz = points[i]
+            px = str("{:f}".format(_px))
+            py = str("{:f}".format(_py))
+            pz = str("{:f}".format(_pz))
+
+            ### Add Layer Info on First Layer
+            if i == 0:
+                txt.append("G1 X{} Y{} Z{} F{} {}\n".format(px, py, pz, f, layer_info))
+            else:
+                txt.append("G1 X{} Y{} Z{} F{}\n".format(px, py, pz, f))
+
+            ### Extrude Filament
+            if i == 0:
+                ### M3
+                txt.append(self.define_extrude_filament(m3_s))
+
+            ### get current z
+            if i == (len(points) - 1):
+                _cx, _cy, _cz = points[i]
+                cz = "{:f}".format(_cz)
+
+        ### Printting Stop
+        ### M4
+        txt.append(self.define_stop_filament(m4_s, stop_time))
+
+        ### Travel
+        txt.append(self.define_travel(cz, z_buffer))
+
+        txt_join = "".join(txt)
+
+        return txt_join
+
+
+    def points_list_to_gcode_no_origin(self, points_list, comp_info, m7_tf, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
+        
+        ### Not Go Through Machine Origin
+
+        export = []
+
+        ### print msg, print parameter
+        export.append(self.define_print_msg())
+        export.append(self.define_print_parameter(comp_info, f, m3_s, m4_s, z_offset, stop_time, z_buffer))
+
+        ### gcode start
+        export.append(self.gcode_start_no_origin())
+
+        ### head1 start
+        export.append(self.head1_start(m7_tf))
+
+        ### gcode
+        for i in xrange(len(points_list)):
+            
+            pts = points_list[i]
+            layer_info = "( ========= Layer : {} ========= )".format(i + 1)
+            
+            ### Fisrt Layer
+            if i == 0:
+                export.append(self.points_to_gcode(layer_info, pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
+            
+            ### Second - Last Layer
+            else:
+                export.append(self.points_to_gcode(layer_info, pts, m3_s, m4_s, f, stop_time, z_buffer))
+        
+        ### gcode end
+        export.append(self.gcode_end_no_origin())
+
+        export_join = "".join(export)
+
+        return export_join
