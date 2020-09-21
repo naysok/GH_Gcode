@@ -197,22 +197,26 @@ class BigGcode():
 class BigGcodeAttribute(BigGcode):
 
 
-    def points_to_gcode(self, layer_info, points, m3_s, m4_s, f, stop_time, z_buffer):
+    def points_to_gcode_attribute(self, layer_info, points, weight, m3_s, m4_s, f, stop_time, z_buffer):
 
         txt = []
 
         ### Printing
         for i in xrange(len(points)):
             _px, _py, _pz = points[i]
+            _w = float(weight[i])
+            _m3 = float(m3_s)
+
             px = str("{:f}".format(_px))
             py = str("{:f}".format(_py))
             pz = str("{:f}".format(_pz))
+            ss = str("{}".format(int(_m3 * _w)))
 
             ### Add Layer Info on First Layer
             if i == 0:
                 txt.append("G1 X{} Y{} Z{} F{} {}\n".format(px, py, pz, f, layer_info))
             else:
-                txt.append("G1 X{} Y{} Z{} F{}\n".format(px, py, pz, f))
+                txt.append("G1 X{} Y{} Z{} F{} S{}\n".format(px, py, pz, f, ss))
 
             ### Extrude Filament
             if i == 0:
@@ -236,7 +240,7 @@ class BigGcodeAttribute(BigGcode):
         return txt_join
 
 
-    def points_list_to_gcode_no_origin(self, points_list, comp_info, m7_tf, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
+    def points_list_to_gcode_no_origin_attribute(self, points_list, weight_list, comp_info, m7_tf, m3_s, m3_s_1st, m4_s, f, f_1st,  z_offset, stop_time, z_buffer):
         
         ### Not Go Through Machine Origin
 
@@ -252,19 +256,21 @@ class BigGcodeAttribute(BigGcode):
         ### head1 start
         export.append(self.head1_start(m7_tf))
 
-        ### gcode
+        ### gcode with Attribute
         for i in xrange(len(points_list)):
             
             pts = points_list[i]
+            weight = weight_list[i]
+
             layer_info = "( ========= Layer : {} ========= )".format(i + 1)
             
             ### Fisrt Layer
             if i == 0:
-                export.append(self.points_to_gcode(layer_info, pts, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
+                export.append(self.points_to_gcode_attribute(layer_info, pts, weight, m3_s_1st, m4_s, f_1st, stop_time, z_buffer))
             
             ### Second - Last Layer
             else:
-                export.append(self.points_to_gcode(layer_info, pts, m3_s, m4_s, f, stop_time, z_buffer))
+                export.append(self.points_to_gcode_attribute(layer_info, pts, weight, m3_s, m4_s, f, stop_time, z_buffer))
         
         ### gcode end
         export.append(self.gcode_end_no_origin())
