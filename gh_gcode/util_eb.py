@@ -10,7 +10,6 @@ reload(util)
 
 
 ### Utilities fo EB
-
 class Util_EB(util.Util):
 
 
