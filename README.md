@@ -27,7 +27,6 @@
 
 ### To Do  
 
-- gcode(E) to Polylines  
 - Atrribute Mode // 吐出量を細かな単位でいじるため  
 
 
