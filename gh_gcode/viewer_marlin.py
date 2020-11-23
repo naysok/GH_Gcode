@@ -31,7 +31,7 @@ class ViewerMarlin():
         ### Gcode (per Line)
         # print(new_str)
 
-        ### Sprit Space
+        ### Split Space
         elements = new_str.split()
 
         ### init
