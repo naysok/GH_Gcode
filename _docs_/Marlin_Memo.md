@@ -2,17 +2,14 @@
 
 
 Marlin Website  
-
 [https://marlinfw.org/](https://marlinfw.org/)  
 
 
-Marlin gcode documents  
-
+Marlin gcode Document  
 [https://marlinfw.org/meta/gcode/](https://marlinfw.org/meta/gcode/)  
 
 
-G-code(RepRap community Wiki)  
-
+G-code Wiki (RepRap Community Wiki)  
 [https://reprap.org/wiki/G-code](https://reprap.org/wiki/G-code)  
 
 
@@ -31,7 +28,7 @@ G92 : 位置を指定する(Set Position)
 
 M82 : Set Extruder to Absolute Mode
 M83 : Set Extruder to Relative Mode
-M84 : stepper off (???)
+M84 : Sstepper off (???)
 M104 : Set Extruder Temperature
 M106 : Set Fan Speed
 M107 : Fan Off
@@ -41,5 +38,3 @@ M190 : Wait for Bed Temperature
 M204 : Set Starting Acceleration
 M205 : Set Advanced Settings
 ```
-
-
