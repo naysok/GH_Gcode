@@ -40,10 +40,10 @@ class MarlinGcode():
     def define_general_settings(self):
 
         ### G90 - Absolute Positioning
-        set_g90 = "G90\n"
+        set_g90 = "G90 ; Absolute Positioning\n"
 
-        ### M82 - E Absolute
-        set_m82 = "M82\n"
+        ### M82 - E Absolute Mode
+        set_m82 = "M82 ; E Absolute Mode\n"
 
         ### Set Tool
         set_t0 = "T0\n"
@@ -101,12 +101,15 @@ class MarlinGcode():
         reset_e = "G92 E0 ; Reset Extruder Value\n"
         return reset_e
 
-
-    def point_to_gcode(self, info, pts):
-        pass
-
     
-    ######################
+    ##################################################################
+
+
+    #################################
+    ###                           ###
+    ###     Print Start / End     ###
+    ###                           ###
+    #################################
 
 
     def print_start(self, fan, temp_bed, temp_nozzle):
@@ -162,8 +165,29 @@ class MarlinGcode():
         return end_join
     
 
-    ######################
+    ##################################################################
 
+
+    ########################
+    ###                  ###
+    ###     Printing     ###
+    ###                  ###
+    ########################
+
+
+    def point_to_gcode(self, info, pts):
+        pass
+
+
+
+    ##################################################################
+
+
+    ##############################
+    ###                        ###
+    ###     Generate Gcode     ###
+    ###                        ###
+    ##############################
 
 
     def points_list_to_gcode(self, points_list, component, e_amp, feed, temp_nozzle, temp_bed, fan, z_zuffer):
