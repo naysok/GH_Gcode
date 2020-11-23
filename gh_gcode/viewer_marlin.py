@@ -153,22 +153,112 @@ class ViewerMarlin():
         return gcode_values
 
 
+    def segment_extrude(self, xyze):
+
+        ### Segment Print / Travel
+        ### https://docs.google.com/spreadsheets/d/1S4SQ-NT09Nh8sb3Lg6FSauKB1rZPMwLSDjvnrKerXFs/edit?usp=sharing
+        array_seg = []
+        list_seg = []
+
+        for j in xrange(len(xyze)):
+
+            xxx, yyy, zzz, eee = xyze[j]
+            item = [xxx, yyy, zzz]
+            
+            # print(j)
+            # print(j, xyze[j])
+
+            ### Index[0]
+            if (j == 0):
+                
+                x1, y1, z1, e1 = xyze[j]
+                x2, y2, z2, e2 = xyze[j + 1]
+
+                bool_b = e1 < e2
+
+                if (bool_b == True):
+                    list_seg = []
+                    list_seg.append(item)
+                
+            ### Index[0] - Index[Last - 1]
+            elif (j > 0) and (j < (len(xyze) - 1)):
+
+                x0, y0, z0, e0 = xyze[j - 1]
+                x1, y1, z1, e1 = xyze[j]
+                x2, y2, z2, e2 = xyze[j + 1]
+
+                bool_a = e0 < e1
+                bool_b = e1 < e2
+
+                if (bool_a == False) and (bool_b == True):
+                    list_seg = []
+                    list_seg.append(item)
+
+                elif (bool_a == True) and (bool_b == True):
+                    list_seg.append(item)
+
+                elif (bool_a == True) and (bool_b == False):
+                    list_seg.append(item)
+                    array_seg.append(list_seg)
+
+                elif (bool_a == False) and (bool_b == False):
+                    pass
+
+                else:
+                    print("Error!!")
+            
+            ### Index[Last]
+            elif (j == (len(xyze) - 1)):
+                
+                x0, y0, z0, e0 = xyze[j - 1]
+                x1, y1, z1, e1 = xyze[j]
+
+                bool_a = e0 < e1
+                
+                if (bool_a == True):
+                    list_seg.append(item)
+                    array_seg.append(list_seg)
+
+        # print(array_out)
+
+        return array_seg
+
+
+    def remove_invalid_polylines(self, array_seg):
+
+        ### Remove Invalid Polylines (Remove Same Element as the Previous One)
+        layers = []
+
+        for k in xrange(len(array_seg)):
+            tmp_layer = array_seg[k]
+            tmp_removed = ut.remove_previous_elements(tmp_layer)
+            
+            if len(tmp_removed) != 1:
+                layers.append(tmp_removed)
+
+        return layers
+
+
     def draw_path(self, values_4):
 
         ### Remove Same Element as the Previous One
         xyze = ut.remove_previous_elements(values_4)
         ### print(len(values_4), len(xyze))
 
-        ###
         ### Segment Print / Travel
-        ###
+        array_seg = self.segment_extrude(xyze)
 
+        ### Remove Invalid Polylines (Remove Same Element as the Previous One)
+        layers = self.remove_invalid_polylines(array_seg)
+
+        """
         ### Draw All Path
         pts = []
         for i in xrange(len(xyze)):
             x, y, z, e = values_4[i]
             pt = [x, y, z]
             pts.append(pt)
-        
-        return pts
+        """
+
+        return layers
 
