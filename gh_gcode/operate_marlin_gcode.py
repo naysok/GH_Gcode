@@ -18,8 +18,6 @@ class MarlinGcode():
         now = ut.get_current_time()
         time = "; Export Time : {}\n".format(now)
         
-        line_0 = "; ---\n"
-        
         ### Print Parameter
         print_comp = "; Component Info : {}\n".format(component)
         print_e_amp = "; E_AMP : {}\n".format(str(e_amp))
@@ -29,10 +27,10 @@ class MarlinGcode():
         print_fan = "; FAN : {}\n".format(str(fan))
         print_z_buffer = "; Z_BUFFER : {}\n".format(str(z_zuffer))
         
-        line_1 = "; ---\n"
+        line = "; ---\n"
         
-        print_prm = [time, line_0, print_comp, print_e_amp, print_feed, 
-            print_temp_nozzle, print_temp_bed, print_fan, print_z_buffer, line_1]
+        print_prm = [time, print_comp, print_e_amp, print_feed, 
+            print_temp_nozzle, print_temp_bed, print_fan, print_z_buffer, line]
 
         print_prm_join = "".join(print_prm)
 
@@ -97,12 +95,78 @@ class MarlinGcode():
         return homing 
 
 
+    def reset_extrude_value(self):
 
-    ###########
+        ### G92 - Set Position
+        reset_e = "G92 E0 ; Reset Extruder Value\n"
+        return reset_e
+
+
+    def point_to_gcode(self, info, pts):
+        pass
+
+    
+    ######################
+
+
+    def print_start(self, fan, temp_bed, temp_nozzle):
+
+        start = []
+
+        start.append("; = = = = = Start = = = = =\n")
+
+        ### General Setting
+        start.append(self.define_general_settings())
+        
+        ### Start Fan
+        start.append(self.start_fan(fan))
+
+        ### Start Bed
+        start.append(self.start_bed(temp_bed))
+
+        ### Start Extruder
+        start.append(self.start_extruder(temp_nozzle))
+
+        ### Homing
+        start.append(self.homing_all_axes())
+
+        ### Reset Extruder Value
+        start.append(self.reset_extrude_value())
+
+        start.append("; = = = = = Start = = = = =\n")
+
+        start_join = "".join(start)
+
+        return start_join
+
+
+    def print_end(self):
+
+        end = []
+
+        end.append("; = = = = = End = = = = =\n")
+
+        ### Homing
+        end.append(self.homing_all_axes())
+
+        ### End Part
+        end.append("M106 S0 ; turn off cooling fan\n")
+        end.append("M104 S0 ; turn off extruder\n")
+        end.append("M140 S0 ; turn off bed\n")
+        end.append("M84 ; disable motors\n")
+
+        end.append("; = = = = = End = = = = =\n")
+
+        end_join = "".join(end)
+
+        return end_join
+    
+
+    ######################
 
 
 
-    def points_list_to_gcode(self, points, component, e_amp, feed, temp_nozzle, temp_bed, fan, z_zuffer):
+    def points_list_to_gcode(self, points_list, component, e_amp, feed, temp_nozzle, temp_bed, fan, z_zuffer):
         
         ### RUN ALL
         export = []
@@ -111,20 +175,21 @@ class MarlinGcode():
         export.append(self.define_msg())
         export.append(self.define_print_parameter(component, e_amp, feed, temp_nozzle, temp_bed, fan, z_zuffer))
 
-        ### General Setting
-        export.append(self.define_general_settings())
-
-        ### Start Fan
-        export.append(self.start_fan(fan))
-
-        ### Start Bed
-        export.append(self.start_bed(temp_bed))
+        ### Print Start
+        export.append(self.print_start(fan, temp_bed, temp_nozzle))
         
-        ### Start Extruder
-        export.append(self.start_extruder(temp_nozzle))
 
-        ### Homing
-        export.append(self.homing_all_axes())
+        ### Printing
+        for i in xrange(len(points_list)):
+
+            pts = points_list[i]
+            layer_info = "; = = = = = Layer : {} = = = = =".format(i)
+
+            #export.append(self.points_to_gcode(layer_info, pts))
+
+
+        ### Print End
+        export.append(self.print_end())
 
 
         ### JOIN
