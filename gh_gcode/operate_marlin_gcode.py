@@ -1,3 +1,5 @@
+import math
+
 import rhinoscriptsyntax as rs
 
 from . import util
@@ -9,11 +11,13 @@ class MarlinGcode():
 
 
     def define_msg(self):
-        return "; Polyline to Gcode by Grasshopper\n; For Mariln 3D Printer\n; ---\n"
+        return "; Polyline to Gcode by Grasshopper\n; For Mariln 3D Printer\n"
 
 
     def define_print_parameter(self, component, e_amp, feed, temp_nozzle, temp_bed, fan, z_zuffer):
         
+        line = "; ----- Print Parameter -----\n"
+
         ### Time Stamp
         now = ut.get_current_time()
         time = "; Export Time : {}\n".format(now)
@@ -27,9 +31,7 @@ class MarlinGcode():
         print_fan = "; FAN : {}\n".format(str(fan))
         print_z_buffer = "; Z_BUFFER : {}\n".format(str(z_zuffer))
         
-        line = "; ---\n"
-        
-        print_prm = [time, print_comp, print_e_amp, print_feed, 
+        print_prm = [line, time, print_comp, print_e_amp, print_feed, 
             print_temp_nozzle, print_temp_bed, print_fan, print_z_buffer, line]
 
         print_prm_join = "".join(print_prm)
@@ -101,7 +103,18 @@ class MarlinGcode():
         reset_e = "G92 E0 ; Reset Extruder Value\n"
         return reset_e
 
-    
+
+    def calc_distance_2pt(self, x0, y0, z0, x1, y1, z1):
+
+        ### Calc Distance
+        xx = x0 - x1
+        yy = y0 - y1
+        zz = z0 - z1
+        dist = math.sqrt((xx * xx) + (yy * yy) + (zz * zz))
+
+        return dist
+
+
     ##################################################################
 
 
@@ -116,7 +129,7 @@ class MarlinGcode():
 
         start = []
 
-        start.append("; = = = = = Start = = = = =\n")
+        start.append("; ----- Start Code -----\n")
 
         ### General Setting
         start.append(self.define_general_settings())
@@ -136,7 +149,7 @@ class MarlinGcode():
         ### Reset Extruder Value
         start.append(self.reset_extrude_value())
 
-        start.append("; = = = = = Start = = = = =\n")
+        start.append("; ----- Start Code -----\n")
 
         start_join = "".join(start)
 
@@ -147,7 +160,7 @@ class MarlinGcode():
 
         end = []
 
-        end.append("; = = = = = End = = = = =\n")
+        end.append("; ----- End Code -----\n")
 
         ### Homing
         end.append(self.homing_all_axes())
@@ -158,7 +171,7 @@ class MarlinGcode():
         end.append("M140 S0 ; turn off bed\n")
         end.append("M84 ; disable motors\n")
 
-        end.append("; = = = = = End = = = = =\n")
+        end.append("; ----- End Code -----\n")
 
         end_join = "".join(end)
 
@@ -175,8 +188,79 @@ class MarlinGcode():
     ########################
 
 
-    def point_to_gcode(self, info, pts):
+    def travel(self, z_current, z_zuffer):
+
+        ### Travel
         pass
+
+
+    def point_to_gcode(self, count, pts, e_amp, feed):
+        
+        layer = []
+
+        ### CR-10 / TPU
+        PRINTER_PARAMETER = 0.165
+
+        for i in xrange(len(pts)):
+            p = pts[i]
+            xx, yy, zz = p
+
+            ### Index[0]
+            if i == 0:
+
+                ### Initialize
+                ee = 0
+
+                ### Layer Info (Comment)
+                start_comment = "; ----- Layer : {} / start -----\n".format(count)
+                layer.append(start_comment)
+
+                ### Reset Extruder Value
+                layer.append(self.reset_extrude_value())
+
+                gx = str("{:.4f}".format(xx))
+                gy = str("{:.4f}".format(yy))
+                gz = str("{:.4f}".format(zz))
+                gf = str("{}".format(feed))
+
+                gcode = "G1 X{} Y{} Z{} E0 F{}\n".format(gx, gy, gz, gf)
+                layer.append(gcode)
+
+            ### Index[1] - Index[Last]
+            else:
+                x0, y0, z0 = pts[i - 1]
+                x1, y1, z1 = pts[i]
+                
+                distance = self.calc_distance_2pt(x0, y0, z0, x1, y1, z1)
+
+                ### PRINTER_PARAMETER // 1.85 to 0.4
+                ### e_amp // override
+                ee += (distance * float(PRINTER_PARAMETER) * float(e_amp))
+
+                gx = str("{:.4f}".format(xx))
+                gy = str("{:.4f}".format(yy))
+                gz = str("{:.4f}".format(zz))
+                ge = str("{:.4f}".format(ee))
+                
+                gcode = "G1 X{} Y{} Z{} E{}\n".format(gx, gy, gz, ge)
+                layer.append(gcode)
+            
+                ### Index[Last]
+                if i == (len(pts) - 1):
+
+                    ### Travel
+                    ################################
+
+                    ### Layer Info (Comment)
+                    end_comment = "; ----- Layer : {} / end -----\n".format(count)
+                    layer.append(end_comment)
+
+
+
+        ### Join
+        layer_join = "".join(layer)
+
+        return layer_join
 
 
 
@@ -202,15 +286,12 @@ class MarlinGcode():
         ### Print Start
         export.append(self.print_start(fan, temp_bed, temp_nozzle))
         
-
         ### Printing
         for i in xrange(len(points_list)):
 
             pts = points_list[i]
-            layer_info = "; = = = = = Layer : {} = = = = =".format(i)
-
-            #export.append(self.points_to_gcode(layer_info, pts))
-
+            layer_count = str(i)
+            export.append(self.point_to_gcode(layer_count, pts, e_amp, feed))
 
         ### Print End
         export.append(self.print_end())
