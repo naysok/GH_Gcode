@@ -169,7 +169,7 @@ class MarlinGcode():
 
         end.append("; ----- End Code -----\n")
 
-        ### Homing
+        ### Homing X
         end.append(self.homing_x())
 
         ### End Part
@@ -275,13 +275,10 @@ class MarlinGcode():
                     end_comment = "; ----- Layer : {} / end -----\n".format(count)
                     layer.append(end_comment)
 
-
-
         ### Join
         layer_join = "".join(layer)
 
         return layer_join
-
 
 
     ##################################################################
