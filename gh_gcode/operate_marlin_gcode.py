@@ -94,6 +94,13 @@ class MarlinGcode():
         
         ### G28 - Auto Home
         homing = "G28 ; Homing\n"
+        return homing
+
+
+    def homing_x(self):
+        
+        ### G28 - Auto Home
+        homing = "G28 X0 ; Homing X\n"
         return homing 
 
 
@@ -163,7 +170,7 @@ class MarlinGcode():
         end.append("; ----- End Code -----\n")
 
         ### Homing
-        end.append(self.homing_all_axes())
+        end.append(self.homing_x())
 
         ### End Part
         end.append("M106 S0 ; turn off cooling fan\n")
@@ -191,10 +198,22 @@ class MarlinGcode():
     def travel(self, z_current, z_zuffer):
 
         ### Travel
-        pass
+        gcode = []
+
+        cmt = "; --- Travel ---\n"
+
+        gz = str("{:.4f}".format(z_current + float(z_zuffer)))
+        trv = "G1 Z{}\n".format(gz)
+
+        gcode.append(cmt)
+        gcode.append(trv)
+
+        gcode_join = "".join(gcode)
+
+        return gcode_join
 
 
-    def point_to_gcode(self, count, pts, e_amp, feed):
+    def point_to_gcode(self, count, pts, e_amp, feed, z_zuffer):
         
         layer = []
 
@@ -249,7 +268,8 @@ class MarlinGcode():
                 if i == (len(pts) - 1):
 
                     ### Travel
-                    ################################
+                    travel = self.travel(zz, z_zuffer)
+                    layer.append(travel)
 
                     ### Layer Info (Comment)
                     end_comment = "; ----- Layer : {} / end -----\n".format(count)
@@ -291,7 +311,7 @@ class MarlinGcode():
 
             pts = points_list[i]
             layer_count = str(i)
-            export.append(self.point_to_gcode(layer_count, pts, e_amp, feed))
+            export.append(self.point_to_gcode(layer_count, pts, e_amp, feed, z_zuffer))
 
         ### Print End
         export.append(self.print_end())
