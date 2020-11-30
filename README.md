@@ -1,12 +1,12 @@
 # GH_Gcode  
  
 
-ポリラインを、gcode(S) に変換するライブラリ。  
+ポリラインを、gcode に変換するライブラリ。  
 
-汎用のファームウェアでは、XYZ と同じ様に、材料の吐出はモータの回転量（E）で制御されるが、EB の機械は、スピンドルの回転数（S）で制御する。  
+一般的な 3D プリンタでは、Marlin 等の汎用のファームウェアにより gcode を解釈し、XYZE の可動軸が制御される。  
 
 
-### index  
+### Index  
 
 - gh // Grasshopper Files   
   - dev // WIP。ghPython コンポーネントから、モジュールのコードを呼び出す。実装中のあれこれはこっちで。  
@@ -15,14 +15,11 @@
 
 - gh_gcode // Python モジュール  
   - operate_attribute.py // 各点に重みづけ処理を行う。  
-  - operate_big_gcode.py // gcode(S) の文字列処理他。  
   - operate_curve.py // ジオメトリ処理系。  
-  - operate_marlin_gcode.py // Marlin 向けの gcode(E) の文字列処理他。  
+  - operate_marlin_gcode.py // Marlin 向けの gcode の文字列処理他。  
   - transform.py // 数値計算系。  
   - util.py // ユーティリティ。  
-  - util_eb.py // EB 向けのカスタムユーティリティ（継承）。  
-  - viewer_big.py // gcode(S) のビューワー。  
-  - viewer_marlin.py // gcode(E) のビューワー。汎用 gcode 向け。  
+  - viewer_marlin.py // gcode のビューワー関係。
 
 
 ### To Do  
@@ -46,12 +43,6 @@
 ### Marlin_Firmware  
 
 - [Marlin_Memo.md](https://github.com/naysok/GH_Gcode/blob/master/Marlin_Memo.md)  
-
-
-### F社_Firmware  
-
-- [F_Memo.md](https://github.com/naysok/GH_Gcode/blob/master/F_Memo.md)  
-  
 
 
 ### Ref  
