@@ -3,7 +3,7 @@
 
 
 ### private gcode
-tmp/
+_gcode_/gcode_private/
 
 
 ### VSCode
