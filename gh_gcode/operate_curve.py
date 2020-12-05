@@ -21,9 +21,10 @@ class Curve():
 
         ########## NEW CODE ##########
 
-
         """
         ########## OLD CODE 1 ##########
+
+        ### Start-Point + CurveDiscontinuity + End-Point
 
         points = []
 
@@ -42,7 +43,9 @@ class Curve():
         points.append(end_pt)
 
         ########## OLD CODE 1 ##########
+        """
 
+        """
         ########## OLD CODE 2 ##########
         
         ### Polyline to Points by rhinoscriptsuntax
@@ -66,26 +69,6 @@ class Curve():
             points_array.append(points)
 
         return points_array
-
-
-    def offset_z_points(self, points, z_offset_value):
-
-        move_vec = [0, 0, z_offset_value]
-
-        points_off = []
-
-        for i in xrange(len(points)):
-            sub = []
-            tmp = points[i]
-            for j in xrange(len(tmp)):
-                pt = tmp[j]
-                ### offset
-                X, Y, Z = tr.move_pt_vec(pt, move_vec)
-                pt_off = rg.Point3d(X, Y, Z)
-                sub.append(pt_off)
-            points_off.append(sub)
-        
-        return points_off
 
 
     def offset_z_curves(self, curves, z_offset_value):
