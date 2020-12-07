@@ -51,4 +51,6 @@
 
 - [G-code (Rep Rap wiki)](https://reprap.org/wiki/G-code)  
 
-- [Marlin - gcode documents](https://marlinfw.org/meta/gcode/)
+- [Marlin - gcode documents](https://marlinfw.org/meta/gcode/)  
+
+- [piac/list_to_tree.py, tree_to_list.py (GitHub Gist)](https://gist.github.com/piac/ef91ac83cb5ee92a1294)  
