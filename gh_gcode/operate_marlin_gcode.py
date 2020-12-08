@@ -318,3 +318,114 @@ class MarlinGcode():
         export_join = "".join(export)
 
         return export_join
+
+
+    ##################################################################
+
+
+    #############################################
+    ###                                       ###
+    ###     Generate Gcode with Attribute     ###
+    ###                                       ###
+    #############################################
+        
+    def point_to_gcode_w_attribute(self, count, pts, ws, e_amp, feed, z_zuffer):
+        
+        layer = []
+
+        ### CR-10 / TPU
+        PRINTER_PARAMETER = 0.165
+
+        for i in xrange(len(pts)):
+            p = pts[i]
+            xx, yy, zz = p
+
+            ### Index[0]
+            if i == 0:
+
+                ### Initialize
+                ee = 0
+
+                ### Layer Info (Comment)
+                start_comment = "; ----- Layer : {} / start -----\n".format(count)
+                layer.append(start_comment)
+
+                ### Reset Extruder Value
+                layer.append(self.reset_extrude_value())
+
+                gx = str("{:.4f}".format(xx))
+                gy = str("{:.4f}".format(yy))
+                gz = str("{:.4f}".format(zz))
+                gf = str("{}".format(feed))
+
+                gcode = "G1 X{} Y{} Z{} E0 F{}\n".format(gx, gy, gz, gf)
+                layer.append(gcode)
+
+            ### Index[1] - Index[Last]
+            else:
+                x0, y0, z0 = pts[i - 1]
+                x1, y1, z1 = pts[i]
+                w = ws[i]
+
+                distance = self.calc_distance_2pt(x0, y0, z0, x1, y1, z1)
+
+                ### PRINTER_PARAMETER // 1.85 to 0.4
+                ### e_amp // override
+                ee += (distance * float(PRINTER_PARAMETER) * float(e_amp) * float(w))
+                
+                ### Debug
+                # ee = float(w)
+
+                gx = str("{:.4f}".format(xx))
+                gy = str("{:.4f}".format(yy))
+                gz = str("{:.4f}".format(zz))
+                ge = str("{:.4f}".format(ee))
+                
+                gcode = "G1 X{} Y{} Z{} E{}\n".format(gx, gy, gz, ge)
+                layer.append(gcode)
+            
+                ### Index[Last]
+                if i == (len(pts) - 1):
+
+                    ### Travel
+                    travel = self.travel(zz, z_zuffer)
+                    layer.append(travel)
+
+                    ### Layer Info (Comment)
+                    end_comment = "; ----- Layer : {} / end -----\n".format(count)
+                    layer.append(end_comment)
+
+        ### Join
+        layer_join = "".join(layer)
+
+        return layer_join
+
+
+    def points_list_to_gcode_w_attribute(self, points_list, weight_list, component, e_amp, feed, temp_nozzle, temp_bed, fan, z_zuffer):
+        
+        ### RUN ALL
+        export = []
+
+        ### Msg, Parameters
+        export.append(self.define_msg())
+        export.append(self.define_print_parameter(component, e_amp, feed, temp_nozzle, temp_bed, fan, z_zuffer))
+
+        ### Print Start
+        export.append(self.print_start(fan, temp_bed, temp_nozzle))
+        
+        ### Printing
+        for i in xrange(len(points_list)):
+
+            pts = points_list[i]
+            ws = weight_list[i]
+            layer_count = str(i)
+            export.append(self.point_to_gcode_w_attribute(layer_count, pts, ws, e_amp, feed, z_zuffer))
+
+        ### Print End
+        export.append(self.print_end())
+
+
+        ### JOIN
+        export_join = "".join(export)
+
+        return export_join
