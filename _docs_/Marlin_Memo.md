@@ -28,7 +28,7 @@ G92 : 位置を指定する(Set Position)
 
 M82 : Set Extruder to Absolute Mode
 M83 : Set Extruder to Relative Mode
-M84 : Sstepper off (???)
+M84 : Stepper off (???)
 M104 : Set Extruder Temperature
 M106 : Set Fan Speed
 M107 : Fan Off
