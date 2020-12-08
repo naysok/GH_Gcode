@@ -10,6 +10,7 @@
 
 - gh // Grasshopper Files   
   - dev // WIP。ghPython コンポーネントから、モジュールのコードを呼び出す。実装中のあれこれはこっちで。  
+    - カンバス左上の Add Module に、ライブラリのパスを書き、 True にしてパスを追加する。初回はライノも含め再起動必要（？）  
   - release // 安定版。ghPython コンポーネントに全て書き込み済み。とりあえず動く。  
 
 
@@ -40,7 +41,7 @@
 モコモコのテクスチャなど作りたい場合は、データ構造をハンドルしながら作る方がたぶん楽。  
 
 
-### Marlin_Firmware  
+### Marlin_Firmware Memo  
 
 - [Marlin_Memo.md](https://github.com/naysok/GH_Gcode/blob/master/Marlin_Memo.md)  
 
